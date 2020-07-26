@@ -86,6 +86,7 @@ class Spot:
     def update_neighbor(self, grid):
         self.neighbors = []
         #Checking if the neighbor is a barrier or not and if it a valid spot for the current spot to go through.
+        if self.row < self.total_row - 1 and not grid[self.row + 1][self.col].is_barrier(): #DOWN
             self.neighbors.append(grid[self.row + 1][self.col])
 
         if self.row > 0 and not grid[self.row - 1][self.col].is_barrier(): #UP
