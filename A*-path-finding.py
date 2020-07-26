@@ -89,6 +89,9 @@ class Spot:
     def __lt__(self, other):
         return False
 
+    #Function to make the starting point 
+    def make_start(self):
+        self.color = ORANGE
 
 
 
@@ -100,7 +103,7 @@ def h(p1, p2):
     x2, y2 = p2
     return abs(x1 - x2) + abs(y1 - y2)
 
-
+#Create a two day array to store the spot
 def make_grid(rows, width):
     grid = []
     gap = width // rows
@@ -111,6 +114,7 @@ def make_grid(rows, width):
             grid[i].append(spot) 
     return grid
 
+#Draw the created grid out on the display
 def draw_grid(win, rows, width):
     gap = width // rows
     for i in range(rows):
@@ -118,14 +122,66 @@ def draw_grid(win, rows, width):
         for j in range(rows):
             pygame.draw.line(win, GREY, (j * gap, 0), (j * gap, width))
 
-def draw(win, grid, row, width):
+def draw(win, grid, rows, width):
     win.fill(WHITE)
-
     for row in grid:
         for spot in row:
             spot.draw(win)
     
-    draw_grid(win, row, width)
+    draw_grid(win, rows, width)
     pygame.display.update()
 
+#Function to take a mouse click and translate that into a row and column on the grid that represent the cube that was just cicked on
+def get_click_pos(pos, rows, width):
+    gap = width // rows
+    y, x = pos
+    row = y // gap
+    col = x // gap
 
+    return row, col
+
+
+def main(win, width):
+    ROWS = 50 
+    grid = make_grid(ROWS, width)
+
+    start = None
+    end = None
+    #variable to check if the algorithm has run or not
+    run = True
+    started = False
+    #setting up for the event after the algorithm has run
+    #main loop for the algorighm to run on
+    while run:
+        draw(win, grid, ROWS, width)
+        #loop through each event happens in the game and see what they are
+        # i.e. a mouseclick or mousehover, etc.   
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            #The algorithm will stop you from doing anything once it started running
+            if started:
+                continue
+            
+            if pygame.mouse.get_pressed()[0]:   #LEFT MOUSE CLICK
+                pos = pygame.mouse.get_pos()     #extracting the mouse click position on the screen
+                row, col = get_click_pos(pos, ROWS, width)      #the row and col position of the mouse clicked cube
+                spot = grid[row][col]       #draw that spot
+                #if have not picked a start position yet, so the first start position would be the first clicked
+                if not start:
+                    start = spot
+                    start.make_start()
+                #same concept for the ending point
+                elif not end:
+                    end = spot
+                    end.make_end()
+                #any spot that is clicked on by the mouse and is not either the starting or ending point would be a barrier
+                elif spot != end and spot != start:
+                    spot.make_barrier()
+            elif pygame.mouse.get_pressed()[2]:  #RIGHT MOUSE CLICK
+                pass
+
+    #exit the pygame window
+    pygame.quit()
+
+main(WIN, WIDTH)
